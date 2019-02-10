@@ -86,7 +86,7 @@ int main(void){
     system("cls");
     for(y = 0;y < FIELD_HEIGHT;y++){
         for(x = 0;x < FIELD_WIDTH;x++){
-            if(f_num[y][x] == -1) printf(" B");
+            if(f_num[y][x] == -1) printf("™");
             else printf("%2d", f_num[y][x]);
         }
         printf("\n");
@@ -94,7 +94,7 @@ int main(void){
     if(win == 0){
         printf("‚ ‚È‚½‚Ì•‰‚¯‚Å‚·\n");
     }
-    else{
+    else if(win == 1){
         printf("‚ ‚È‚½‚ÌŸ‚¿‚Å‚·\n");
     }
     return 0;
@@ -181,8 +181,8 @@ void init(int fx, int fy){
         for(x = 0;x < FIELD_WIDTH;x++){
             sum = 0;
             if(field[y][x] == 0){
-                for(j = max(0, y-1);j <= min(FIELD_HEIGHT, y+1);j++){
-                    for(i = max(0, x-1);i <= min(FIELD_WIDTH,x+1);i++){
+                for(j = max(0, y-1);j <= min(FIELD_HEIGHT-1, y+1);j++){
+                    for(i = max(0, x-1);i <= min(FIELD_WIDTH-1,x+1);i++){
                         if(field[j][i] == 1) sum += 1;
                     }
                 }
@@ -194,15 +194,21 @@ void init(int fx, int fy){
 }
 void open_check(int fx, int fy, int once_before){
     if(opened[fy][fx] == 1) return;
-    else if(fx < 0 || fy < 0 || fx > FIELD_WIDTH || fy > FIELD_HEIGHT) return;
+    else if(fx < 0 || fy < 0 || fx > FIELD_WIDTH-1 || fy > FIELD_HEIGHT-1) return;
     else if(once_before > 0) return;
     else if(f_num[fy][fx] >= 0){
         once_before = f_num[fy][fx];
         opened[fy][fx] = 1;
+        if(field_flag[fy][fx] == 1) field_flag[fy][fx] = 0;
+        open_check(fx-1, fy-1, once_before);
         open_check(fx-1, fy, once_before);
-        open_check(fx+1, fy, once_before);
+        open_check(fx-1, fy+1, once_before);
         open_check(fx, fy-1, once_before);
+        open_check(fx, fy, once_before);
         open_check(fx, fy+1, once_before);
+        open_check(fx+1, fy-1, once_before);
+        open_check(fx+1, fy, once_before);
+        open_check(fx+1, fy+1, once_before);
         return;
     }
 
@@ -211,7 +217,7 @@ int count1(){
     int i, j, sum=0;
     for(i = 0;i < FIELD_HEIGHT;i++){
         for(j = 0;j < FIELD_WIDTH;j++){
-            if(f_num[i][j] == 1) sum++;
+            if(opened[i][j] == 1) sum++;
         }
     }
     if(sum == FIELD_HEIGHT*FIELD_WIDTH-BOMB) return 1;
